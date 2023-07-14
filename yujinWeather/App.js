@@ -1,12 +1,24 @@
-// import React from 'react';
+// import React from 'react';snow
 import { StatusBar } from 'expo-status-bar';
 import { useEffect, useState } from 'react';
 import React from 'react';
 import { ActivityIndicator, Dimensions, ScrollView, StyleSheet, Text, View } from 'react-native';
 import * as Location from 'expo-location';
 import {API_KEY} from '@env';
+import { Fontisto } from '@expo/vector-icons';
 
 const {width:SCREEN_WIDTH}=Dimensions.get("window");
+const icons = {
+  Clouds:"cloudy",
+  Clear:"day-sunny",
+  Rain:"rains",
+  Atmosphere:"cloudy-gusts",
+  Snow:"snow",
+  Drizzle:"rain",
+  Thunderstorm:"lightning",
+  
+}
+
 export default function App() {
   const [days, setDays]= useState([]);
   const [ok, setOk]= useState(true);
@@ -47,7 +59,7 @@ export default function App() {
           contentContainerStyle={styles.weather}
         >
           {days.length===0?(
-            <View style={styles.day}>
+            <View style={{...styles.day, alignItems:'center'}}>
               <ActivityIndicator 
                 color="black" 
                 size="large"
@@ -57,9 +69,12 @@ export default function App() {
           ):(
             days.map((day, index)=>
               <View key={index} style={styles.day}>
-                <Text style={styles.temp}>
-                  {parseFloat(day.main.temp).toFixed(1)}
-                </Text>
+                <View style={{flexDirection:"row", alignItems:'center',width:"100%", justifyContent:"space-between"}}>
+                  <Text style={styles.temp}>
+                    {parseFloat(day.main.temp).toFixed(1)}
+                  </Text>
+                  <Fontisto name={icons[day.weather[0].main]} size={60} color="black" />
+                </View>
                 <Text style={styles.desc}>
                   {day.weather[0].main}
                 </Text>
@@ -87,12 +102,14 @@ const styles = StyleSheet.create({
     alignItems:'center',
   },
   weather:{
-    backgroundColor: "purple"
+    // backgroundColor: "purple"
   },
   day:{
     width:SCREEN_WIDTH,
-    alignItems:'center',
-    backgroundColor: "white"
+    alignItems:'flex-start',
+    backgroundColor: "white",
+    paddingHorizontal:20,
+
   },
   cityName:{
     fontSize:68,
@@ -101,11 +118,13 @@ const styles = StyleSheet.create({
   },
   temp:{
     marginTop:50,
-    fontSize:160
+    fontSize:160,
+    fontWeight:"600"
   },
   desc:{
-    marginTop:-30,
-    fontSize:60
+    marginTop:-20,
+    fontSize:50,
+    fontWeight:"500"
   },
   tinyText:{
     fontSize:20,
