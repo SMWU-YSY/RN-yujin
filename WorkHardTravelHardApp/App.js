@@ -1,30 +1,47 @@
 import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, Text, View, TouchableOpacity, TextInput, ScrollView } from 'react-native';
 import { theme } from './colors';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
+const STORAGE_KEY="@toDos";
 
 export default function App() {
+  useEffect(()=>{
+    loadToDos();
+  },[]);
+
   const [working, setWorking]=useState(true);
   const [text,setText]=useState("");
   const [toDos,setToDos]=useState({});
+  const saveToDos = async(toSave)=>{
+    await AsyncStorage.setItem(STORAGE_KEY,JSON.stringify(toSave));
+  };
+
   const travel=()=>setWorking(false);
   const work=()=>setWorking(true);
   const onChangeText=(event)=>setText(event);
-  const addTodo=()=>{
+  const loadToDos= async()=>{
+    const s = await AsyncStorage.getItem(STORAGE_KEY);
+    setToDos(JSON.parse(s));
+    // console.log(s);
+  };
+  
+  const addTodo= async()=>{
     if(text===""){
       return;
     }
     const newToDos = {
       ...toDos, 
-      [Date.now()] : { text, work: working },
+      [Date.now()] : { text, working },
     };
-
     // const newToDos=Object.assign(
     //   {},
     //   toDos,
     //   {[Date.now()]:{text, work:working}})
     // alert(text);
     setToDos(newToDos);
+    await saveToDos(newToDos);
     setText("");
   };
   console.log(toDos);
@@ -48,11 +65,15 @@ export default function App() {
         placeholder={working?"Add a To Do":"Where do you want to go?"}
       />
       <ScrollView>
-        {Object.keys(toDos).map(key=><View style={styles.toDos} key={key}>
-          <Text style={styles.toDosText}>
-            {toDos[key].text}
-          </Text>
-        </View>)}
+        {Object.keys(toDos).map(key=>
+          toDos[key].working===working?(
+          <View style={styles.toDos} key={key}>
+            <Text style={styles.toDosText}>
+              {toDos[key].text}
+            </Text>
+          </View>
+        ) : null
+        )}
       </ScrollView>
     </View>
   );
@@ -91,6 +112,6 @@ const styles = StyleSheet.create({
   toDosText:{
     color:'white',
     fontSize:16,
-    fontWeight:"500"
+    fontWeight:"500",
   }
 });
